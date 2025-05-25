@@ -1,0 +1,417 @@
+# Kubernetes Interview Questions and Answers
+
+## Beginner Questions (Questions 1–10)
+
+1. **What is Kubernetes and why is it used?**  
+   It's an open-source container orchestration platform that automates deploying, scaling, and managing containerized applications.  
+   
+
+2. **What are pods in Kubernetes?**  
+
+A Pod is the smallest deployable unit in Kubernetes. It can contain one or more containers that share storage,
+network, and specifications for how the containers should run.  
+  
+
+3. **What is a Kubernetes node?**  
+  
+A Kubernetes cluster consists of Nodes. A Node
+is a physical or virtual machine that runs containerized
+applications.Each Node has components like the
+Kubelet, a container runtime (like Docker), and a
+solution network proxy.
+  
+
+4. **What is a deployment in Kubernetes?**  
+  
+· A Deployment is a Kubernetes resource that manages the lifecycle
+of Pods. It allows you to define the desired state of
+your application, ensuring high availability and easy rollback..  
+   
+
+5. **How does Kubernetes perform load balancing?**  
+
+ Kubernetes provides internal load balancing using Services. A Service assigns a stable IP to a group of Pods and distributes
+traffic among them..  
+  
+
+6. **Scenario: A pod keeps crashing frequently. How do you troubleshoot?**  
+  
+· kubectl logs <pod-name>
+· kubectl describe pod <pod-name>
+· Check resource limits
+· kubectl get pod <pod-name> -o wide
+  
+
+7. **What is a config map in Kubernetes?**  
+
+A ConfigMap is an API object that allows you to store configuration
+data separately from container images, making
+applications more flexible.
+   
+
+8. **Scenario: A service is not reaching the correct pods. How do you debug?**  
+   
+· kubectl get pods -o wide
+. kubectl get service <service-name>
+· Ensure they allow communication.
+· kubectl describe service <service-name>
+   
+
+9. **What is the purpose of namespaces in Kubernetes?**  
+
+NAMESPACE alloe multiple teams or applications to use the same cluster without conflict, they logically separate resource.
+  
+
+10. **How do you scale a Kubernetes deployment?**  
+
+ kubectl scale deployment < deployment-name> --replica=5
+
+*************************************************************************************************************************************************
+
+## Intermediate Questions (Questions 11–20)
+
+11. **What is a stateful set in Kubernetes?**  
+ 
+· A StatefulSet is a Kubernetes controller used to manage
+stateful applications. It ensures that each Pod
+has a unique, stable identity, persistent storage, and
+maintains the correct order of deployment and scaling.
+    
+
+12. **How does Kubernetes handle rolling updates and rollbacks?**  
+
+Kubernetes ensures seamless application updates using rolling updates, where new versions of an application are
+deployed gradually, minimizing downtime. If an update fails, Kubernetes allows you to rollback to a
+previous stable version.
+
+kubectl rollout undo deployment/nginx-deploment
+kubectl rollout history deployment/nginx-deploment
+kubectl rollout undo deployment/nginx-deploment -- to-revision=2
+
+
+13. **What is a daemon set?**  
+
+A DaemonSet is a specialized Kubernetes controller that ensures a specific Pod runs on all (or a subset of) Nodes in a
+cluster. This is useful for running background services or system-level applications that should be available on every Node.
+
+DaemonSet  :Logging agents (e.g., Fluentd)
+
+Monitoring agents (e.g., Prometheus Node Exporter)
+
+Security tools
+
+Storage drivers
+
+
+14. **Scenario: A pod is stuck in a pending state. How do you debug?**  
+
+. A Pod remains in the 'Pending' state when Kubernetes is unable to schedule it onto a Node. This can happen due to
+resource constraints, scheduling issues, or storage problems.
+
+· Check Node capacity (kubectl describe node <node-name>)
+
+· Check storage constraints (kubectl get pvc)
+
+View Pod events (kubectl describe pod <pod-name>)
+
+· Check Scheduler logs (kubectl logs -n kube-system
+
+    kube-scheduler -< node-name>)
+
+· Ensure images pull correctly (kubectl describe
+pod | grep "ImagePullBackOff")
+
+· Verify scheduling constraints (nodeSelector, affinity, taints & tolerations)
+
+· Check Network Policies (kubectl get networkpolicy -A)
+   
+
+15. **How do you secure Kubernetes secrets?**  
+
+· Kubernetes Secrets store sensitive data like API keys, passwords, database credentials, and TLS certificates. However,
+by default, Secrets are only Base64-encoded, not encrypted, making them vulnerable. To secure Kubernetes Secrets
+properly, follow these best practices.
+
+16. **Scenario: A deployment update has caused downtime. How do you prevent this?**  
+
+ When updating a Kubernetes Deployment, downtime
+ can occur if all existing Pods are terminated before new ones
+ are ready. To prevent this, we use a Rolling Update strategy
+  instead of Recreate
+    
+
+17. **What is persistent volume (PV) and persistent volume claim (PVC)?**  
+
+ Kubernetes Pods are ephemeral, meaning data stored
+ inside a Pod is lost when the Pod is deleted or restarted.
+ To store data persistently, Kubernetes provides
+ Persistent Volumes (PVs) and Persistent Volume Claims (PVCs).
+
+******************  What Are PV and PVC?********
+
+ Persistent Volume (PV)
+A cluster-wide storage resource.
+
+Provisioned by an admin (statically) or dynamically by Kubernetes (if StorageClass is set).
+
+Managed independently of the Pod lifecycle.
+
+Persistent Volume Claim (PVC) Namespace object
+A request for storage by a user.
+
+Claims a PV that matches the request (size, access mode, etc).
+
+***************** Policy fors **************
+
+1️⃣ Retain (Manual Cleanup Required)
+Data is preserved.
+
+PV becomes Released but is not reusable until manually cleaned.
+
+You must manually delete data and remove the PV or reuse it.
+
+2️⃣ Delete (Automatic Cleanup)
+PVC deletion triggers automatic deletion of the PV and the underlying storage (e.g., AWS EBS, GCE PD).
+
+Works only with dynamically provisioned volumes using a StorageClass.
+
+
+3️⃣ Recycle (Deprecated ❌)
+
+18. **How do you set up auto-scaling in Kubernetes?**  
+
+  Horizontal Pod Autoscaler (HPA) – scales pods up/down based on CPU, memory, or custom metrics.
+
+  Vertical Pod Autoscaler (VPA) – adjusts pod resource requests/limits (RAM/CPU).
+
+  Cluster Autoscaler – adds/removes nodes in your cluster (works with cloud providers like AWS, GCP, Azure).
+
+ Steps to Set Up HPA : Make sure Metrics Server is installed 
+                      kubectl top nodes
+                      kubectl autoscale deployment my-app --cpu-percent=50 --min=2 --max=10
+                      
+ THis will 
+
+Maintain CPU usage around 50%
+
+Scale between 2 and 10 pods
+
+19. **What is a network policy in Kubernetes?**  
+
+* A way to control traffic between pods in Kubernetes.
+
+* Acts like a firewall for your pods.
+
+* By default: All pods can talk to all other pods.
+
+* When you apply a NetworkPolicy: Only allowed traffic is permitted.
+
+**Ingress – traffic coming into a pod.
+
+**Egress – traffic going out of a pod.
+
+NOTE: Network Policies only work if your cluster uses a supported CNI plugin (like Calico, Cilium, etc.).
+
+20. **Scenario: How do you expose a Kubernetes application externally?**  
+
+ By default, Kubernetes Pods are isolated and cannot be accessed from outside the cluster. To expose applications externally,
+  Kubernetes provides multiple options depending on your requirements.
+
+   1. NodePort – Easy, for Testing
+ Opens a port on your Node IP (like http://<node-ip>:30007)
+  Good for: Development, quick access
+
+   2. LoadBalancer – Best for Cloud
+Gets a public IP from your cloud provider
+
+You access it like: http://<public-ip>
+
+Good for: Production on cloud (AWS, GCP, Azure)
+
+3. Ingress – Route by URL/Hostname
+Routes traffic like a web server
+
+Example: myapp.example.com → goes to your app
+
+Needs an Ingress Controller (like NGINX)
+
+*********************************************************************************************
+## Experienced Questions (Questions 21–30)
+
+21. **How does Kubernetes handle node failures?**  
+
+· Node Controller Detection
+· Pod Rescheduling
+· Persistent Volume Handling
+· Self-Healing with ReplicaSets
+
+22. **What are custom resource definitions (CRDs)?**  
+
+A Custom Resource Definition (CRD) extends Kubernetes by allowing users to define their own API objects.
+This enables Kubernetes to manage new types of resources beyond the built-in ones like Pods, Services, and
+Deployments.
+
+23. **How do you implement GitOps in Kubernetes?**  
+
+· Store Kubernetes configurations (deployments.yaml, services.yaml) in Git.
+· Use ArgoCD or Flux to monitor the repository.
+· Changes pushed to Git trigger automatic updates to the cluster.
+
+24.How do you troubleshoot a memory leak in a Kubernetes application?
+
+ . Check Pod Memory Usage
+· View Container Logs
+. Describe the Pod for Errors
+· Enable Resource Limits
+· Use Profiling Tools
+
+25 What is a Kubernetes Operator?
+
+A Kubernetes Operator is an advanced custom controller that automates the lifecycle management of complex
+applications, such as databases, message queues, and monitoring tools. Operators extend Kubernetes by using Custom
+Resource Definitions (CRDs) to define and automate application-specific tasks.
+
+26 How to kubernate RBAC  works 
+
+RBAC (Role-Based Access Control) manages who can do what inside a Kubernetes cluster.
+
+Uses Roles and ClusterRoles to define permissions on resources.
+
+Uses RoleBindings and ClusterRoleBindings to assign these roles to users, groups, or service accounts.
+
+Roles and RoleBindings are namespace-scoped.
+
+ClusterRoles and ClusterRoleBindings are cluster-scoped.
+
+RBAC enforces security by allowing or denying actions like get, create, delete on Kubernetes objects.
+
+27 How do you secure kubernetes cluster ?
+
+1** Use RBAC
+
+Control who can do what in your cluster.
+
+Give only needed permissions.
+
+2**Use Network Policies
+
+Control which pods can talk to each other.
+
+Block unwanted traffic.
+
+3**Protect the API Server
+
+Use HTTPS (TLS).
+
+Limit who can access it.
+
+4**Strong Authentication
+
+Use secure login methods (like certificates or OAuth).
+
+Don’t use default admin accounts.
+
+5**Keep Everything Updated
+
+Regularly update Kubernetes and tools to fix security bugs.
+
+6**Secure etcd
+
+Encrypt stored data.
+
+Limit who can access etcd.
+
+7**Limit Pod Privileges
+
+Don’t run containers as root.
+
+Use policies to block unsafe containers.
+
+8**Use Namespaces
+
+Separate apps to limit impact if one is compromised.
+
+9**Monitor and Log
+
+Keep track of activity to spot problems early.
+
+10**Use Safe Container Images
+
+Use trusted images only.
+
+Scan images for vulnerabilities.
+
+11**Encrypt Secrets
+
+Protect sensitive data stored in Kubernetes.
+
+12** Backup Your Cluster
+
+Regularly save your cluster state and data.
+
+Test recovery steps.
+
+28 your cluster was slow how to optimize it ?
+
+"If my Kubernetes cluster is slow, I first check resource usage — CPU, memory, disk, and network — on nodes and pods to find bottlenecks. Then, I optimize by:
+
+Right-sizing pods: adjusting requests and limits to avoid overloading nodes or wasting resources.
+
+Scaling workloads properly using Horizontal Pod Autoscaler to handle load spikes.
+
+Checking for pod or node issues like crashes or restarts.
+
+Improving cluster networking by reviewing network policies and CNI plugin performance.
+
+Cleaning up unused resources, like old pods or images, to free up capacity.
+
+Ensuring the control plane components are healthy and not overloaded.
+
+Finally, upgrading Kubernetes and node OS for performance improvements and bug fixes."
+
+     or #######
+· Check resource usage
+· Scale workloads
+· Optimize networking
+· Remove Unused Resources
+
+29 How do you handle  multi -cluster kubernetes deployment ?
+
+Of course! Here's a very **easy-to-understand** version of how to handle **multi-cluster Kubernetes deployments**, perfect for interviews:
+
+---
+
+### ✅ **Simple Interview Answer:**
+
+*"When working with multiple Kubernetes clusters, I do the following:*
+
+1. **Use different clusters** for dev, test, and production, or for different regions.
+
+2. **Manage all clusters from one place** using tools like Rancher or ArgoCD.
+
+3. **Deploy apps to each cluster** using CI/CD pipelines, so it's automatic and consistent.
+
+4. **Keep settings the same** across clusters using tools like Helm or Kustomize.
+
+5. **Connect clusters if needed** using VPNs or service mesh (like Istio) so apps can talk to each other.
+
+6. **Monitor all clusters** with tools like Prometheus, Grafana, or ELK stack.
+
+7. **Take backups** of each cluster and test restore regularly in case of failure."
+
+30 what are the kubernetes admission controller ?
+
+Admission Controllers are plugins in Kubernetes that intercept requests to the API server after authentication & authorization, but before the object is stored in etcd.
+
+🎯 Purpose
+They help validate, mutate, or deny requests based on rules or policies.
+
+📌 Summary (Easy)
+Admission Controllers are like security gates before a change is allowed in the cluster.
+
+They help enforce rules, modify requests, or block bad ones.
+
+
+
+
+
