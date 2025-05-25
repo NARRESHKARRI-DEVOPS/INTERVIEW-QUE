@@ -1,0 +1,164 @@
+## 1. What is Ansible?
+
+**Ans:** Ansible is an open-source automation tool used for configuration management, application deployment, and task automation. It uses YAML-based playbooks and doesn’t require any agents on the target systems.
+
+## 2. What Are The Advantages Of Ansible?
+
+**Ans:**
+
+* Agentless
+* Written in simple YAML
+* Idempotent (safe to run multiple times)
+* Large community and support
+* Easy to learn and implement
+
+## 3. How to write playbooks?
+
+**Ans:** Playbooks are written in YAML and define hosts, tasks, variables, etc.
+
+```yaml
+- hosts: webservers
+  tasks:
+    - name: install nginx
+      apt:
+        name: nginx
+        state: present
+```
+
+## 4. What are the modules you used in Ansible?
+
+**Ans:** Modules used include `yum`, `apt`, `service`, `copy`, `template`, `shell`, `file`, `git`, `get_url`, etc.
+
+## 5. Do you know what language Ansible is written in?
+
+**Ans:** Python
+
+## 6. What is module?
+
+**Ans:** A module is a unit of code in Ansible used to perform tasks like installing software or managing files.
+
+## 7. What is ansible.cfg file?
+
+**Ans:** Main configuration file for Ansible to define inventory location, log path, remote user, etc.
+
+## 8. Difference between Docker and Ansible?
+
+**Ans:** Docker is used for containerization, while Ansible is used for automation and configuration management.
+
+## 9. What is the use of group, host vars?
+
+**Ans:** These are used to define variables specific to groups or individual hosts.
+
+## 10. Ansible Playbooks vs Roles?
+
+**Ans:** Playbooks contain tasks; Roles organize playbooks into reusable components.
+
+## 11. Steps to download a file, unzip, and execute a script using Ansible?
+
+**Ans:**
+
+1. `get_url` to download
+2. `unarchive` to extract
+3. `shell` to run the script
+
+## 12. What kind of playbooks you have written?
+
+**Ans:** Playbooks for package installation, service management, deployments, user creation, etc.
+
+## 13. What is the default inventory file name?
+
+**Ans:** `/etc/ansible/hosts`
+
+## 14. How to update 10 servers at a time from 100 in inventory?
+
+**Ans:** Use `serial` keyword:
+
+```yaml
+- hosts: all
+  serial: 10
+  tasks:
+    - name: update httpd
+      yum:
+        name: httpd
+        state: latest
+```
+
+## 15. Have you used Ansible ad-hoc commands or written playbooks?
+
+**Ans:** Yes, used both. Ad-hoc for quick tasks; playbooks for repeatable tasks.
+
+## 16. What Is Ansible Role?
+
+**Ans:** A predefined folder structure to create reusable playbooks.
+
+## 17. What is Ansible Galaxy?
+
+**Ans:** A repository for finding, reusing, and sharing Ansible roles.
+
+## 18. What is Ansible Tower?
+
+**Ans:** A web UI and REST API for managing Ansible with RBAC, logging, and scheduling.
+
+## 19. Can you build your own modules?
+
+**Ans:** Yes. You can write custom modules, preferably in Python.
+
+## 20. Pull vs Push based tools?
+
+**Ans:**
+
+* Pull (e.g., Puppet): Client pulls config
+* Push (e.g., Ansible): Server pushes config
+
+## 21. Execute or skip specific tasks?
+
+**Ans:** Use `--tags` to run or `--skip-tags` to skip.
+
+## 22. What is Ansible dry run?
+
+**Ans:** Simulates playbook execution without making changes. Use `--check`.
+
+## 23. What is Ansible Vault?
+
+**Ans:** Encrypts sensitive data like passwords. Use `ansible-vault` commands to create/edit/view encrypted files.
+
+## 24. Use of conditional statements?
+
+**Ans:** To run tasks based on a condition:
+
+```yaml
+when: ansible_os_family == "RedHat"
+```
+
+## 25. What is dynamic inventory?
+
+**Ans:** Generates inventory from external sources like cloud APIs (AWS, Azure).
+
+## 26. List all Ansible modules?
+
+**Ans:** `ansible-doc -l`
+
+## 27. Store output of a task into variable?
+
+**Ans:** Use `register`:
+
+```yaml
+- command: uptime
+  register: result
+```
+
+## 28. Display options for yum module?
+
+**Ans:** `ansible-doc yum`
+
+## 29. Three places to store variables?
+
+**Ans:**
+
+1. Inventory file
+2. Playbook vars
+3. Role defaults/vars
+
+## 30. Format of Ansible ad hoc output?
+
+**Ans:** JSON (default)
